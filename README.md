@@ -13,7 +13,7 @@ the difference in language between adventure novels and biographies but also nov
 
 ## Background Information
 
-There is not research done on the difference in use of adjectives between (adventure) novels and biographies. However
+There is not much research being done on the difference in use of adjectives between (adventure) novels and biographies. However
 some research is done on adjectives in novels. Two well known novels have been analysed to see how much adjectives are used.
 
 Nuhiu (2021) looked at the use of adjectives in the novel 'The Great Gatsby'. There are in total 2701 adjectives used in 'The Great Gatsby' (Nuhiu, 2021). 
