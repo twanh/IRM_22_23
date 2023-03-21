@@ -1,3 +1,4 @@
+import os
 from typing import Any
 from typing import NamedTuple
 
@@ -27,6 +28,31 @@ def _process_book_json(data: dict[str, Any]) -> Book:
         bookshelves=data['bookshelves'],
         genre='Unknown',  # TODO: Add genre?
     )
+
+
+def _download_book(book: Book, output_dir: str, exist_ok=False) -> None:
+
+    if book.gutenberg_text_url is None or book.gutenberg_text_url == 'no-url':
+        raise Exception('Could not download book, no download url')
+
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+
+    clean_title = book.title.replace(' ', '_')
+    clean_author = book.title.replace(' ', '_')
+    save_path = os.path.join(
+        output_dir, f'{book.gutenberg_id}_{clean_title}_{clean_author}.txt',
+    )
+
+    # Do no download books that are already downloaded
+    if not exist_ok and os.path.exists(save_path):
+        raise Exception(f'Book already is downloaded, see: {save_path}')
+
+    with requests.get(book.gutenberg_text_url, stream=True) as r:
+        r.raise_for_status()
+        with open(save_path, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
 
 
 def _get_books_by_genre(
@@ -77,7 +103,22 @@ def _get_books_by_genre(
 
 def main() -> int:
 
-    _ = _get_books_by_genre('adventure')
+    # TODO: Remove the license from the books
+
+    adv_books = _get_books_by_genre('adventure', max_pages=1)
+
+    for book in adv_books:
+        try:
+            print(f'Downloading book ({book.gutenberg_id}): {book.title}')
+            _download_book(
+                book, os.path.join(
+                    os.getcwd(), 'books', 'adventure/',
+                ),
+            )
+        except Exception as e:
+            print(f'Error: {e} for book: {book.gutenberg_id}, skipping...')
+            continue
+
     return 0
 
 
