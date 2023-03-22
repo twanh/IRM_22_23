@@ -1,3 +1,4 @@
+import argparse
 import os
 from typing import Any
 from typing import NamedTuple
@@ -15,14 +16,23 @@ class Book(NamedTuple):
     genre: str
 
 
-def _process_book_json(data: dict[str, Any]) -> Book:
+def _parse_book_json(data: dict[str, Any]) -> Book:
+
+    text_url = None
+    for key in (
+            'text/plain; charset=utf-8',
+            'text/plain',
+            'text/plain; charset=us-ascii',
+    ):
+        if key in data['formats']:
+            text_url = data['formats'][key]
+            # Stop looking for the other keys since we found a download link
+            break
 
     return Book(
         title=data['title'],
         gutenberg_id=data.get('id', -1),
-        gutenberg_text_url=data['formats'].get(
-            'text/plain; charset=utf-8', 'no-url',
-        ),
+        gutenberg_text_url=text_url or 'no-url',
         author=data['authors'][0]['name'],  # TODO: Allow multiple auhtors
         subjects=data['subjects'],
         bookshelves=data['bookshelves'],
@@ -96,28 +106,48 @@ def _get_books_by_genre(
 
     books = []
     for book in book_data:
-        books.append(_process_book_json(book))
+        books.append(_parse_book_json(book))
 
     return books
 
 
 def main() -> int:
 
-    # TODO: Remove the license from the books
+    parser = argparse.ArgumentParser()
+    parser.add_argument('genre')
+    parser.add_argument('--max-pages', type=int, default=5)
+    parser.add_argument('--start-page', type=int, default=1)
+    parser.add_argument('--language', type=str, default='en')
 
-    adv_books = _get_books_by_genre('adventure', max_pages=1)
+    args = parser.parse_args()
 
-    for book in adv_books:
+    # TODO: Date range
+    print(f'Searching books in genre: {args.genre}')
+
+    results = _get_books_by_genre(
+        args.genre,
+        page=args.start_page,
+        max_pages=args.max_pages,
+        language=args.language,
+    )
+
+    print(f'Found {len(results)}, books')
+
+    downloaded = 0
+    for book in results:
         try:
             print(f'Downloading book ({book.gutenberg_id}): {book.title}')
             _download_book(
                 book, os.path.join(
-                    os.getcwd(), 'books', 'adventure/',
+                    os.getcwd(), 'books', f'{args.genre}/',
                 ),
             )
+            downloaded += 1
         except Exception as e:
             print(f'Error: {e} for book: {book.gutenberg_id}, skipping...')
             continue
+
+    print(f'Downloaded {downloaded}/{len(results)} for genre: {args.genre}')
 
     return 0
 
