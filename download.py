@@ -4,6 +4,7 @@ from typing import Any
 from typing import NamedTuple
 
 import requests
+from tqdm import tqdm
 
 
 class Book(NamedTuple):
@@ -165,7 +166,7 @@ def main() -> int:
     print(f'Found {len(results)}, books')
 
     downloaded = 0
-    for book in results:
+    for book in tqdm(results):
         try:
             print(f'Downloading book ({book.gutenberg_id}): {book.title}')
             _download_book(
