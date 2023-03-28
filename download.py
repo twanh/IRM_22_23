@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 
 class Book(NamedTuple):
+    """Datastructure to store metadata of the found books"""
     title: str
     gutenberg_id: int
     gutenberg_text_url: str
@@ -19,6 +20,7 @@ class Book(NamedTuple):
 
 
 def _parse_book_json(data: dict[str, Any], genre: str, date: str) -> Book:
+    """Parses the response from the API and returns a Book datastructure."""
 
     text_url = None
     for key in (
@@ -34,7 +36,7 @@ def _parse_book_json(data: dict[str, Any], genre: str, date: str) -> Book:
         title=data['title'],
         gutenberg_id=data.get('id', -1),
         gutenberg_text_url=text_url or 'no-url',
-        author=data['authors'][0]['name'],  # TODO: Allow multiple auhtors
+        author=data['authors'][0]['name'],
         subjects=data['subjects'],
         bookshelves=data['bookshelves'],
         genre=genre,
@@ -43,6 +45,7 @@ def _parse_book_json(data: dict[str, Any], genre: str, date: str) -> Book:
 
 
 def _download_book(book: Book, output_dir: str, exist_ok=False) -> None:
+    """Downloads the given book (as text) and saves it to the output_dir"""
 
     if book.gutenberg_text_url is None or book.gutenberg_text_url == 'no-url':
         raise Exception('Could not download book, no download url')
@@ -50,6 +53,7 @@ def _download_book(book: Book, output_dir: str, exist_ok=False) -> None:
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir, exist_ok=True)
 
+    # Remove whitespace in the title and author
     clean_title = book.title.replace(' ', '_')
     clean_author = book.title.replace(' ', '_')
     save_path = os.path.join(
@@ -75,6 +79,7 @@ def _get_books_by_genre(
     max_pages: int = 5,
     language: str | None = None,
 ) -> list[Book]:
+    """Searches for books based on the given arguments"""
 
     if page is None:
         page = 1

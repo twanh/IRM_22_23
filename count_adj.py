@@ -13,9 +13,15 @@ class AdjInfo(NamedTuple):
 
 
 def _load_book(in_path: str) -> tuple[str, str] | None:
+    """
+    Reads in the book from in_path and returns the filename and contents.
+
+    This function will return None if the file could not be openend.
+    """
 
     encodings = ['utf-8', 'us-ascii']
 
+    # Try different encodings for the files
     for encoding in encodings:
         try:
             with open(in_path, 'r', encoding=encoding) as book_file:
@@ -29,6 +35,7 @@ def _load_book(in_path: str) -> tuple[str, str] | None:
 
 
 def _count_adj(book: tuple[str, str], nlp: spacy.language.Language) -> AdjInfo:
+    """Counts the adjectives in a book"""
 
     adj = []
     for line in book[1].splitlines():
@@ -42,6 +49,7 @@ def _count_adj(book: tuple[str, str], nlp: spacy.language.Language) -> AdjInfo:
 
 
 def _save_data(adj: list[AdjInfo], path: str):
+    """Saves the data (adj) to the given path"""
 
     with open(path, 'w') as save_file:
         json.dump(adj, save_file)
@@ -49,6 +57,7 @@ def _save_data(adj: list[AdjInfo], path: str):
 
 def main() -> int:
 
+    # Create argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'in_path', help='Path to folder where the books are stored.',

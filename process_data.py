@@ -5,6 +5,7 @@ from collections import defaultdict
 
 
 def _get_data(in_file: str) -> list[tuple[str, list[str]]]:
+    """Reads the datafile and returns the content as a list"""
 
     with open(in_file, 'r') as f:
         data = json.load(f)
@@ -38,15 +39,16 @@ def main() -> int:
     adj_counter = Counter(adj_count)
     book_counter = Counter(book_count)
 
+    # Print the info
     print('--- GENERAL INFO ---')
     print(f'# books: {len(book_count)}')
     print(f'# adjectives: {n_adj}')
     print(f'# unique adjectives: {len(unique_adj)}')
     print('--- Most Common Adjectives ---')
-    for adj, count in adj_counter.most_common(10):
+    for adj, count in adj_counter.most_common(5):
         print(f'{count} - {adj}')
     print('--- Books with most adjectives ---')
-    for book, count in book_counter.most_common(10):
+    for book, count in book_counter.most_common(5):
         print(f'{count} - {book}')
 
     return 0
