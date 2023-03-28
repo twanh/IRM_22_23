@@ -69,13 +69,13 @@ def main() -> int:
 
     args = parser.parse_args()
 
-    # Download using: python -m spacy download en_core_web_trf
     print('Finding books to process')
     base_path = args.in_path
     files = os.listdir(base_path)
     print(f'Found {len(files)} books')
 
     print('Loading spaCy model')
+    # Download using: python -m spacy download en_core_web_sm
     nlp = spacy.load('en_core_web_sm')
     # Make sure that spacy can handle the tex length
     nlp.max_length = 1_000_000
